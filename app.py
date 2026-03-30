@@ -30,7 +30,7 @@ COLLECTIONS = {
 mongo_client = MongoClient(MONGO_URI)
 db = mongo_client[DB_NAME]
 
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # ─────────────────────────────────────────────
 # ROULETTE CONSTANTS
