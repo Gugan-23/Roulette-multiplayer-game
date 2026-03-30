@@ -16,7 +16,8 @@ app = Flask(__name__)
 app.secret_key = "roulette_secret_key_2024"
 
 # MongoDB Configuration
-MONGO_URI = "mongodb+srv://vgugan16:gugan2004@cluster0.qyh1fuo.mongodb.net/dL?retryWrites=true&w=majority&appName=Cluster0"
+
+MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = "roulette_game"
 COLLECTIONS = {
     "users": "users",
