@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roulette — Lobby</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="lobby-page">
+
+  <!-- Animated background chips -->
+  <div class="bg-orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+
+  <div class="lobby-container">
+    <div class="lobby-card">
+      <div class="lobby-header">
+        <div class="wheel-icon">🎰</div>
+        <h1 class="lobby-title">Royal<br><span>Roulette</span></h1>
+        <p class="lobby-subtitle">Multiplayer · Up to 3 Players · Real-time</p>
+      </div>
+
+      <div class="lobby-form">
+        <div class="form-group">
+          <label for="playerName">Your Name</label>
+          <input type="text" id="playerName" placeholder="Enter your name…" maxlength="20" autocomplete="off"/>
+        </div>
+
+        <div class="form-group">
+          <label for="roomId">Room ID</label>
+          <input type="text" id="roomId" placeholder="Enter or create a room…" maxlength="20" autocomplete="off"/>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary" onclick="joinRoom()">
+            <span>Enter Room</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <button class="btn-secondary" onclick="randomRoom()">
+            Random Room
+          </button>
+        </div>
+
+        <div id="lobbyError" class="error-msg" style="display:none"></div>
+      </div>
+
+      <div class="lobby-info">
+        <div class="info-item"><span class="dot green"></span> Bet on numbers, colors, odds & more</div>
+        <div class="info-item"><span class="dot red"></span> Start with $1,000 balance</div>
+        <div class="info-item"><span class="dot black"></span> Max 3 players per room</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function joinRoom() {
+      const name = document.getElementById("playerName").value.trim();
+      const room = document.getElementById("roomId").value.trim();
+      const err = document.getElementById("lobbyError");
+
+      if (!name) { showError("Please enter your name."); return; }
+      if (!room) { showError("Please enter a Room ID."); return; }
+
+      // Store in sessionStorage for the room page to pick up
+      sessionStorage.setItem("playerName", name);
+      window.location.href = `/room/${encodeURIComponent(room)}`;
+    }
+
+    function randomRoom() {
+      const adjectives = ["Golden","Lucky","Royal","Diamond","Crimson"];
+      const nouns = ["Wheel","Table","Palace","Vault","Crown"];
+      const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const noun = nouns[Math.floor(Math.random() * nouns.length)];
+      const num = Math.floor(Math.random() * 99) + 1;
+      document.getElementById("roomId").value = `${adj}${noun}${num}`;
+    }
+
+    function showError(msg) {
+      const el = document.getElementById("lobbyError");
+      el.textContent = msg;
+      el.style.display = "block";
+      setTimeout(() => el.style.display = "none", 3000);
+    }
+
+    // Allow Enter key to submit
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter") joinRoom();
+    });
+  </script>
+</body>
+</html>

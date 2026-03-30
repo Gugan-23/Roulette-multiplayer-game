@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roulette — Room {{ room_id }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="room-page">
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <a href="/" class="topbar-logo">🎰 Royal Roulette</a>
+    <div class="topbar-room">Room: <strong id="roomLabel">{{ room_id }}</strong></div>
+    <div class="topbar-balance">Balance: <strong id="balanceDisplay">$1,000</strong></div>
+  </header>
+
+  <div class="room-layout">
+
+    <!-- LEFT: Players + Chat -->
+    <aside class="sidebar-left">
+      <div class="panel">
+        <h3 class="panel-title">Players</h3>
+        <div id="playersList" class="players-list"></div>
+      </div>
+
+      <div class="panel chat-panel">
+        <h3 class="panel-title">Chat</h3>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Say something…" maxlength="200"/>
+          <button onclick="sendChat()">→</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 class="panel-title">History</h3>
+        <div id="historyBalls" class="history-balls"></div>
+      </div>
+    </aside>
+
+    <!-- CENTER: Wheel + Board -->
+    <main class="game-center">
+
+      <!-- Phase Banner -->
+      <div id="phaseBanner" class="phase-banner waiting">
+        <span id="phaseText">Waiting for players…</span>
+        <span id="timerDisplay" class="timer-display"></span>
+      </div>
+
+      <!-- Wheel -->
+      <div class="wheel-section">
+        <div class="wheel-container" id="wheelContainer">
+          <canvas id="wheelCanvas" width="260" height="260"></canvas>
+          <div class="wheel-result" id="wheelResult" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- Roulette Board -->
+      <div class="board-wrapper">
+        <div id="rouletteBoard" class="roulette-board"></div>
+
+        <!-- Outside bets row -->
+        <div class="outside-bets">
+          <div class="bet-row">
+            <button class="outside-btn red-btn" onclick="placeBet('color','red')">RED</button>
+            <button class="outside-btn black-btn" onclick="placeBet('color','black')">BLACK</button>
+            <button class="outside-btn" onclick="placeBet('parity','even')">EVEN</button>
+            <button class="outside-btn" onclick="placeBet('parity','odd')">ODD</button>
+          </div>
+          <div class="bet-row">
+            <button class="outside-btn" onclick="placeBet('half','1-18')">1–18</button>
+            <button class="outside-btn" onclick="placeBet('half','19-36')">19–36</button>
+            <button class="outside-btn" onclick="placeBet('dozen','1-12')">1st 12</button>
+            <button class="outside-btn" onclick="placeBet('dozen','13-24')">2nd 12</button>
+            <button class="outside-btn" onclick="placeBet('dozen','25-36')">3rd 12</button>
+          </div>
+          <div class="bet-row">
+            <button class="outside-btn" onclick="placeBet('column','col1')">Col 1</button>
+            <button class="outside-btn" onclick="placeBet('column','col2')">Col 2</button>
+            <button class="outside-btn" onclick="placeBet('column','col3')">Col 3</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bet Controls -->
+      <div class="bet-controls">
+        <div class="chip-row" id="chipRow">
+          <button class="chip chip-5"  onclick="setChip(5)">$5</button>
+          <button class="chip chip-10" onclick="setChip(10)">$10</button>
+          <button class="chip chip-25" onclick="setChip(25)">$25</button>
+          <button class="chip chip-50" onclick="setChip(50)">$50</button>
+          <button class="chip chip-100" onclick="setChip(100)">$100</button>
+        </div>
+        <div class="bet-summary">
+          <span>Chip: <strong id="selectedChip">$10</strong></span>
+          <span>Total Bet: <strong id="totalBetDisplay">$0</strong></span>
+          <button class="btn-clear" onclick="clearBets()">Clear Bets</button>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- RIGHT: My Bets + Stats -->
+    <aside class="sidebar-right">
+      <div class="panel">
+        <h3 class="panel-title">My Bets</h3>
+        <div id="myBetsList" class="my-bets-list">
+          <p class="empty-label">No bets placed yet</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 class="panel-title">My Stats</h3>
+        <div id="statsPanel" class="stats-grid">
+          <div class="stat-item"><label>Wins</label><span id="statWins">0</span></div>
+          <div class="stat-item"><label>Losses</label><span id="statLosses">0</span></div>
+          <div class="stat-item"><label>Total Won</label><span id="statWon">$0</span></div>
+          <div class="stat-item"><label>Total Lost</label><span id="statLost">$0</span></div>
+        </div>
+      </div>
+
+      <!-- Toast area -->
+      <div id="toastArea" class="toast-area"></div>
+    </aside>
+  </div>
+
+  <!-- Result Overlay -->
+  <div id="resultOverlay" class="result-overlay" style="display:none">
+    <div class="result-card">
+      <div class="result-number" id="resultNumber"></div>
+      <div class="result-color-label" id="resultColorLabel"></div>
+      <div id="resultBreakdown"></div>
+      <div class="result-net" id="resultNet"></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="/static/js/wheel.js"></script>
+  <script src="/static/js/board.js"></script>
+  <script src="/static/js/game.js"></script>
+</body>
+</html>
