@@ -1,8 +1,7 @@
-"""
-Flask-SocketIO Multiplayer Roulette Game with MongoDB Room-Centric Storage
-=========================================================================
-Main server file where EACH SPIN is stored in an ARRAY within the ROOM document.
-"""
+
+import eventlet
+eventlet.monkey_patch()
+
 
 import random
 import time
